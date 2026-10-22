@@ -87,6 +87,17 @@ The adapter delegates training to **BpeTrainer.train**, encoding/decoding/loadin
 - MVP bounds: 20 MiB combined corpus, 256–32,768 target vocabulary, 100,000 input UTF-16 code units. The package trainer holds the corpus in memory; large corpora and vocabularies can take time. Inspection and token display use pagination.
 - Standalone byte fragments are not forced into malformed replacement text. Their exact bytes remain visible; complete sequences are decoded by the package.
 
+## GitHub Actions desktop builds
+
+The **Desktop builds** workflow runs on pushes to `main`, tags starting with `v`, and manually through **Actions → Desktop builds → Run workflow**. Both jobs generate Drift code, analyze, test, and build in release mode.
+
+Download the ZIP files from the completed run's **Artifacts** section (retained for 14 days):
+
+- `flutter_tokenizer-windows-x64.zip`: extract the entire archive and run `flutter_tokenizer.exe`. Keep the accompanying DLLs and `data` folder next to it.
+- `flutter_tokenizer-macos.zip`: extract and open `flutter_tokenizer.app`. This is a demo build without Developer ID signing or notarization; macOS may require approval in **System Settings → Privacy & Security** on first launch.
+
+CI checks out the public [`k0zlov/dart-tokenizer`](https://github.com/k0zlov/dart-tokenizer) package alongside the app, so the existing `../dart_tokenizer` path dependency works without extra secrets. Flutter is pinned to **3.47.4** (Dart 3.13.3) and the package to commit `99ca12ed3eecf9a5631551fb1a80cef795091188`. Update these pins in `.github/workflows/desktop-build.yml` when upgrading. Builds do not include your locally trained models or corpus files.
+
 ## Development and verification
 
 ```sh

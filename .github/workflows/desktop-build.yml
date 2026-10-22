@@ -1,0 +1,93 @@
+name: Desktop builds
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows
+            runner: windows-2022
+          - platform: macos
+            runner: macos-15
+    defaults:
+      run:
+        shell: bash
+        working-directory: flutter_tokenizer
+    steps:
+      - name: Check out application
+        uses: actions/checkout@v7
+        with:
+          path: flutter_tokenizer
+          persist-credentials: false
+
+      # Keep the same sibling layout used by the local path dependency.
+      - name: Check out dart_tokenizer
+        uses: actions/checkout@v7
+        with:
+          repository: k0zlov/dart-tokenizer
+          ref: 99ca12ed3eecf9a5631551fb1a80cef795091188
+          path: dart_tokenizer
+          persist-credentials: false
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.4'
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get --enforce-lockfile
+
+      - name: Generate Drift code
+        run: dart run build_runner build
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Build release
+        run: flutter build ${{ matrix.platform }} --release --no-pub
+
+      - name: Package Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath dist/flutter_tokenizer-windows-x64.zip
+
+      # ditto preserves the .app bundle's symlinks and executable permissions.
+      - name: Package macOS
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p dist
+          ditto -c -k --sequesterRsrc --keepParent \
+            build/macos/Build/Products/Release/flutter_tokenizer.app \
+            dist/flutter_tokenizer-macos.zip
+
+      - name: Upload application
+        uses: actions/upload-artifact@v7
+        with:
+          path: flutter_tokenizer/dist/*.zip
+          archive: false
+          if-no-files-found: error
+          retention-days: 14
