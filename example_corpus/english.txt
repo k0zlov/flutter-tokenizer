@@ -1,0 +1,8 @@
+Language is made of patterns. Tokens make those patterns visible.
+A tokenizer reads text and turns text into token IDs.
+A byte-level tokenizer begins with bytes. Frequent pairs become new tokens.
+We can train a small model, inspect its vocabulary, and read its merge rules.
+Language is made of patterns. Tokens make those patterns visible.
+A tokenizer reads text and turns text into token IDs.
+A byte-level tokenizer begins with bytes. Frequent pairs become new tokens.
+We can train a small model, inspect its vocabulary, and read its merge rules.

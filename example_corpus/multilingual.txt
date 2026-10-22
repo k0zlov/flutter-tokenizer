@@ -1,0 +1,6 @@
+Hello, world! Привіт, світе! こんにちは世界！ 👋
+Language connects people. Мова поєднує людей.
+Hello, world! Привіт, світе! こんにちは世界！ 👋
+Language connects people. Мова поєднує людей.
+Spaces, tabs, punctuation, and emoji are all represented by UTF-8 bytes.
+Spaces, tabs, punctuation, and emoji are all represented by UTF-8 bytes.
